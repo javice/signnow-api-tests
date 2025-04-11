@@ -15,7 +15,7 @@ jobs:
         with:
           java-version: '17'
       - name: Run Tests
-        run: ./gradlew clean test
+        run: make run-tests
       - name: Check if report exists
         run: |
           if [ -f report.html ]; then
