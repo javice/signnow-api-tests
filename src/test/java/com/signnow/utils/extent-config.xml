@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<extentreports>
+    <configuration>
+        <report name="Extent Report" domain="signnow.com">
+            <system-info>
+                <os></os>
+                <java></java>
+            </system-info>
+        </report>
+    </configuration>
+</extentreports>

@@ -1,0 +1,29 @@
+plugins {
+    id 'java'
+}
+
+group 'com.signnow'
+version '1.0.0'
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    testImplementation 'org.testng:testng:7.10.1'
+    testImplementation 'io.rest-assured:rest-assured:5.4.0'
+    testImplementation 'org.slf4j:slf4j-simple:2.0.9'
+    testImplementation 'com.aventstack:extentreports:4.1.7'
+    implementation 'io.github.cdimascio:dotenv-java:3.0.0'
+    implementation 'org.jsoup:jsoup:1.14.3'
+    testImplementation 'org.junit.jupiter:junit-jupiter:5.8.1'
+    
+}
+
+
+
+test {
+    useTestNG() {
+        suites 'src/test/resources/testng.xml'
+    }
+}

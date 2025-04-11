@@ -1,0 +1,12 @@
+<!DOCTYPE suite SYSTEM "https://testng.org/testng-1.0.dtd" >
+<suite name="SignNow API Tests">
+    <listeners>
+        <listener class-name="com.signnow.utils.ReportListener"/>
+    </listeners>
+    <test name="OAuth2 Tests">
+        <classes>
+            <class name="com.signnow.tests.OAuth2UserAuthTest"/>
+            <class name="com.signnow.tests.OAuth2TokenWithAuthCodeTest"/>
+        </classes>
+    </test>
+</suite>
