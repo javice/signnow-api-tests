@@ -9,23 +9,25 @@ jobs:
       CLIENT_ID: ${{ secrets.CLIENT_ID }}
       CLIENT_SECRET: ${{ secrets.CLIENT_SECRET }}
     steps:
-    - uses: actions/checkout@v3
-    - name: Set up JDK
-      uses: actions/setup-java@v3
-      with:
-        java-version: '17'
-    - name: Run Tests
-      run: ./gradlew clean test
-    - name: Check if report exists
-      run: |
-        if [ -f report.html ]; then
-          echo "Report exists."
-        else
-          echo "Report does not exist."
-          exit 1
-        fi
-    - name: Upload Report
-      uses: actions/upload-artifact@v3
-      with:
-        name: test-report
-        path: report.html
+      - uses: actions/checkout@v3
+      - name: Set up JDK
+        uses: actions/setup-java@v3
+        with:
+          java-version: '17'
+      - name: Run Tests
+        run: ./gradlew clean test
+      - name: Check if report exists
+        run: |
+          if [ -f report.html ]; then
+            echo "Report exists."
+          else
+            echo "Report does not exist."
+            exit 1
+          fi
+      - name: List files
+        run: ls -la # List files to confirm report.html is present
+      - name: Upload Report
+        uses: actions/upload-artifact@v3
+        with:
+          name: test-report
+          path: report.html
