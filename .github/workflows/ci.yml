@@ -16,6 +16,14 @@ jobs:
         java-version: '17'
     - name: Run Tests
       run: ./gradlew clean test
+    - name: Check if report exists
+      run: |
+        if [ -f report.html ]; then
+          echo "Report exists."
+        else
+          echo "Report does not exist."
+          exit 1
+        fi
     - name: Upload Report
       uses: actions/upload-artifact@v3
       with:
