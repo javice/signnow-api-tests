@@ -5,9 +5,6 @@ import com.signnow.config.EnvConfig;
 import com.signnow.utils.ReportListener;
 import io.restassured.http.ContentType;
 import io.restassured.response.Response;
-import jdk.jfr.Description;
-import org.jsoup.select.Elements;
-import org.junit.jupiter.api.DisplayName;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
@@ -53,8 +50,6 @@ public class OAuth2TokenWithAuthCodeTest {
 
 
     @Test(description = "POST: Generar Access Token y Refresh Token iniciales (usando password grant)")
-    @Description("Test para generar un código de autorización pasando por el header el BasicAuthToken")
-    @DisplayName("POST: Generar Authorization Code")
     public void testGenerateAuthorizationCode() {
 
         ExtentTest extentTest = ReportListener.test.get();
@@ -93,8 +88,6 @@ public class OAuth2TokenWithAuthCodeTest {
 
     @Test(description = "GET: Obtener Client ID usando el Access Token",
             dependsOnMethods = {"testGenerateAuthorizationCode"})
-    @Description("Test para obtener el client_id mediante una solicitud GET")
-    @DisplayName("GET: Obtener Client ID")
     public void testClientId() {
         ExtentTest extentTest = ReportListener.test.get();
         extentTest.info("Iniciando Test: Obtener Client ID");
@@ -127,8 +120,6 @@ public class OAuth2TokenWithAuthCodeTest {
 
     @Test(description = "GET: Obtener Authorization Code parseando HTML de redirección",
             dependsOnMethods = {"testClientId"}) // Depende de tener el Client ID y Access Token
-    @Description("Test para obtener un código de autorización incluido en una URL de redirección")
-    @DisplayName("GET: Obtener Authorization Code mediante una URL de redirección")
     public void testAuthCodeViaRedirect() {
         ExtentTest extentTest = ReportListener.test.get();
         extentTest.info("Iniciando Test: Obtener Authorization Code desde HTML");
@@ -257,8 +248,6 @@ public class OAuth2TokenWithAuthCodeTest {
 
     @Test(description = "POST: Obtener Access Token utilizando el Authorization Code",
             dependsOnMethods = {"testAuthCodeViaRedirect"})
-    @Description("Test para obtener un token de acceso utilizando el código de autorización")
-    @DisplayName("POST: Obtener Access Token utilizando Authorization Code")
     public void testAccessTokenWithAuthCode() {
         String authCode = EnvConfig.getAuthorizationCode();
         ExtentTest extentTest = ReportListener.test.get();
@@ -298,7 +287,6 @@ public class OAuth2TokenWithAuthCodeTest {
         EnvConfig.updateRefreshToken(refreshToken);
 
         // Agregamos los valores de ACCESS_TOKEN y REFRESH_TOKEN al reporte del test
-
         extentTest.info("Access Token: " + EnvConfig.getAccessToken());
         extentTest.info("Refresh Token: " + EnvConfig.getRefreshToken());
         extentTest.info("✅ Nuevos tokens obtenidos con éxito usando Authorization Code.");

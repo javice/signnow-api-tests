@@ -12,8 +12,6 @@ import java.lang.reflect.Method;
 import io.restassured.RestAssured;
 import io.restassured.config.RestAssuredConfig;
 import io.restassured.config.SSLConfig;
-import org.junit.platform.commons.util.AnnotationUtils;
-import org.junit.jupiter.api.DisplayName;
 import org.testng.ITestContext;
 import org.testng.ITestListener;
 import org.testng.ITestResult;
@@ -42,13 +40,11 @@ public class ReportListener implements ITestListener {
         RestAssured.config = RestAssuredConfig.newConfig().sslConfig(new SSLConfig().allowAllHostnames().relaxedHTTPSValidation());
 
         Method method = result.getMethod().getConstructorOrMethod().getMethod();
-        String testName = AnnotationUtils.findAnnotation(method, DisplayName.class).map(DisplayName::value).orElse(method.getName());
-
+        String testName = result.getMethod().getMethodName();
         ExtentTest extentTest = extent.createTest(testName);
-        jdk.jfr.Description descriptionAnnotation = method.getAnnotation(jdk.jfr.Description.class);
-
+        String descriptionAnnotation = result.getMethod().getDescription();
         if (descriptionAnnotation != null) {
-            extentTest.info(descriptionAnnotation.value());
+            extentTest.info(descriptionAnnotation);
         } else {
             extentTest.info("No hay descripción disponible");
         }
@@ -61,8 +57,6 @@ public class ReportListener implements ITestListener {
         test.get().pass("✅ Test superado con éxito");
         test.get().info("Tiempo de ejecución: " + (result.getEndMillis() - result.getStartMillis()) + " ms");
         test.get().info("Código de estado: " + result.getStatus());
-
-
     }
 
     @Override

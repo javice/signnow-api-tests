@@ -27,5 +27,4 @@ public class AuthService {
                 .get("/oauth2/token");
     }
 
-    // Más métodos de servicio aquí...
 }
