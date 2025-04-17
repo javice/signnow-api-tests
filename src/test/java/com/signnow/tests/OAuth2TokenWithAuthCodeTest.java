@@ -124,16 +124,16 @@ public class OAuth2TokenWithAuthCodeTest {
 
     }
 
+
     @Test(description = "GET: Obtener Authorization Code parseando HTML de redirección",
             dependsOnMethods = {"testClientId"}) // Depende de tener el Client ID y Access Token
     @Description("Test para obtener un código de autorización incluido en una URL de redirección")
     @DisplayName("GET: Obtener Authorization Code mediante una URL de redirección")
-    public void testAuthCodeViaRedirect(){
+    public void testAuthCodeViaRedirect() {
         ExtentTest extentTest = ReportListener.test.get();
         extentTest.info("Iniciando Test: Obtener Authorization Code desde HTML");
 
         String expectedRedirectUriPrefix = "https://api.signnow.com";
-        //String redirectUri ="https://api.sgnnow.com";
         String clientId = EnvConfig.getClientId();
         String accessToken = EnvConfig.getAccessToken();
 
@@ -141,75 +141,118 @@ public class OAuth2TokenWithAuthCodeTest {
         assertThat("Client ID no debe ser null para este test", clientId, is(notNullValue()));
         assertThat("Access Token no debe ser null para este test", accessToken, is(notNullValue()));
 
-        Response response = given()
+        // Realizar la solicitud para obtener el código de autorización
+        Response response = requestAuthorizationCode(clientId, accessToken, expectedRedirectUriPrefix);
+
+        // Validar respuesta básica
+        assertThat(response.statusCode(), is(302));
+        assertThat(response.contentType(), containsString(ContentType.HTML.toString()));
+
+        // Extraer el código de autorización
+        String responseBody = response.getBody().asString();
+        String authorizationCode = extractAuthCodeFromHtml(responseBody, expectedRedirectUriPrefix, extentTest);
+
+        // Validar y almacenar el código
+        assertThat("El código de autorización no pudo ser extraído.", authorizationCode, is(notNullValue()));
+        EnvConfig.updateAuthorizationCode(authorizationCode);
+
+        // Información para el reporte
+        extentTest.info("Authorization Code extraído: " + EnvConfig.getAuthorizationCode());
+        extentTest.info("✅ Código de autorización obtenido y almacenado con éxito desde HTML.");
+    }
+
+    /**
+     * Realiza la solicitud HTTP para obtener el código de autorización
+     */
+    private Response requestAuthorizationCode(String clientId, String accessToken, String redirectUri) {
+        return given()
                 .log().ifValidationFails()
                 .redirects().follow(false)
                 .when()
                 .get("/oauth2/userauth?response_type=code&redirect_uri=" +
-                        expectedRedirectUriPrefix + "&client_id=" + clientId + "&access_token=" + accessToken)
+                        redirectUri + "&client_id=" + clientId + "&access_token=" + accessToken)
                 .then()
                 .log().ifValidationFails()
                 .extract().response();
+    }
 
-
-        String authorizationCode = null;
-
-        assertThat(response.statusCode(), is(302));
-        assertThat(response.contentType(), containsString(ContentType.HTML.toString()));
-
-
-        // Verifica que la URL de redirección contenga el código de autorización
-        String responseBody = response.getBody().asString();
+    /**
+     * Extrae el código de autorización del HTML de la respuesta
+     */
+    private String extractAuthCodeFromHtml(String responseBody, String expectedRedirectUriPrefix, ExtentTest extentTest) {
         Document document = Jsoup.parse(responseBody);
         extentTest.info("Respuesta HTML recibida. Buscando meta refresh tag...");
 
+        // Buscar etiqueta meta refresh
         Element metaRefresh = document.selectFirst("meta[http-equiv=refresh]");
-        assertThat("No se encontró la etiqueta <meta http-equiv=\"refresh\"> en el HTML.",metaRefresh, is(notNullValue()));
+        assertThat("No se encontró la etiqueta <meta http-equiv=\"refresh\"> en el HTML.",
+                metaRefresh, is(notNullValue()));
 
+        // Obtener el atributo content
         String content = metaRefresh.attr("content");
-        assertThat("El atributo 'content' está vacío o no existe en la etiqueta meta refresh.", content, is(notNullValue()));
+        assertThat("El atributo 'content' está vacío o no existe en la etiqueta meta refresh.",
+                content, is(notNullValue()));
         extentTest.info("Atributo 'content' encontrado: " + content);
 
-        String urlString = null;
-        int urlIndex = content.toLowerCase().indexOf("url=");
-        if (urlIndex != -1) {
-            urlString = content.substring(urlIndex + 4).trim();
-            // Quitar posibles comillas simples o dobles alrededor de la URL
-            if (urlString.startsWith("'") && urlString.endsWith("'")) {
-                urlString = urlString.substring(1, urlString.length() - 1);
-            } else if (urlString.startsWith("\"") && urlString.endsWith("\"")) {
-                urlString = urlString.substring(1, urlString.length() - 1);
-            }
-        }
-        assertThat("No se pudo extraer la URL del atributo 'content': " + content, urlString, is(notNullValue()));
+        // Extraer URL del contenido
+        String urlString = extractUrlFromContent(content);
+        assertThat("No se pudo extraer la URL del atributo 'content': " + content,
+                urlString, is(notNullValue()));
         extentTest.info("URL extraída del meta tag: " + urlString);
 
-        assertThat("La URL extraída (" + urlString + ") no comienza con el prefijo esperado (" + expectedRedirectUriPrefix + ")", urlString, startsWith(expectedRedirectUriPrefix));
+        // Validar que la URL comienza con el prefijo esperado
+        assertThat("La URL extraída (" + urlString + ") no comienza con el prefijo esperado (" +
+                expectedRedirectUriPrefix + ")", urlString, startsWith(expectedRedirectUriPrefix));
 
+        // Extraer el código de autorización de la URL
         try {
-            URI redirectUri = new URI(urlString);
-            String query = redirectUri.getQuery();
-            assertThat("La URL extraída no contiene una query string: " + urlString, query, is(notNullValue()));
+            return extractAuthCodeFromUrl(urlString);
+        } catch (URISyntaxException | UnsupportedEncodingException e) {
+            Assert.fail("Error al procesar la URL: " + urlString + ". Error: " + e.getMessage());
+            return null; // Nunca llegaría aquí debido al Assert.fail
+        }
+    }
 
-            Map<String, String> queryParams = parseQueryParams(query);
-            authorizationCode = queryParams.get("code");
-
-            assertThat("Parámetro 'code' no encontrado en la query de la URL: " + query, authorizationCode, is(notNullValue()));
-            assertThat("El valor del parámetro 'code' está vacío.", authorizationCode, is(notNullValue()));
-
-        } catch (URISyntaxException e) {
-            Assert.fail("Error al parsear la URL extraída del meta tag: " + urlString, e);
-        } catch (UnsupportedEncodingException e) {
-            Assert.fail("Error al decodificar los parámetros de la query.", e);
+    /**
+     * Extrae la URL del atributo content de la etiqueta meta refresh
+     */
+    private String extractUrlFromContent(String content) {
+        int urlIndex = content.toLowerCase().indexOf("url=");
+        if (urlIndex == -1) {
+            return null;
         }
 
-        assertThat("El código de autorización no pudo ser extraído.", authorizationCode, is(notNullValue()));
+        String urlString = content.substring(urlIndex + 4).trim();
 
-        EnvConfig.updateAuthorizationCode(authorizationCode);
-        extentTest.info("Authorization Code extraído: " + EnvConfig.getAuthorizationCode());
-        extentTest.info("✅ Código de autorización obtenido y almacenado con éxito desde HTML.");
+        // Eliminar comillas si existen
+        if (urlString.startsWith("'") && urlString.endsWith("'")) {
+            urlString = urlString.substring(1, urlString.length() - 1);
+        } else if (urlString.startsWith("\"") && urlString.endsWith("\"")) {
+            urlString = urlString.substring(1, urlString.length() - 1);
+        }
 
+        return urlString;
+    }
 
+    /**
+     * Extrae el código de autorización de la URL
+     */
+    private String extractAuthCodeFromUrl(String urlString) throws URISyntaxException, UnsupportedEncodingException {
+        URI redirectUri = new URI(urlString);
+        String query = redirectUri.getQuery();
+
+        assertThat("La URL extraída no contiene una query string: " + urlString,
+                query, is(notNullValue()));
+
+        Map<String, String> queryParams = parseQueryParams(query);
+        String authCode = queryParams.get("code");
+
+        assertThat("Parámetro 'code' no encontrado en la query de la URL: " + query,
+                authCode, is(notNullValue()));
+        assertThat("El valor del parámetro 'code' está vacío.",
+                authCode, is(not(emptyString())));
+
+        return authCode;
     }
 
     @Test(description = "POST: Obtener Access Token utilizando el Authorization Code",

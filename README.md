@@ -1,41 +1,137 @@
 # SignNow API Tests 🚀
 
-Tests API automatizados para el flujo OAuth2 utilizando `Rest Assured` y `TestNG`.
+![Java](https://img.shields.io/badge/Java-17%2B-orange)
+
+![RestAssured](https://img.shields.io/badge/RestAssured-API%20Testing-blue)
+
+![TestNG](https://img.shields.io/badge/TestNG-Framework-green)
+
+Tests API automatizados para validar los flujos de autenticación OAuth2 de SignNow utilizando `Rest Assured` y `TestNG`.
 
 ## Tabla de Contenidos 📚
+- [Descripción](#descripción)
+- [Tecnologías](#tecnologías)
+- [Estructura del Proyecto](#estructura-del-proyecto)
 - [Requisitos](#requisitos)
 - [Configuración](#configuración)
 - [Instalación](#instalación)
-- [Ejecutar pruebas](#ejecutar-pruebas)
-- [Ver reporte](#ver-reporte)
-- [CI/CD](#ci-cd)
+- [Ejecutar Pruebas](#ejecutar-pruebas)
+- [Ver Reporte](#ver-reporte)
+- [Flujos OAuth2 Probados](#flujos-oauth2-probados)
+- [CI/CD](#cicd)
 - [Contribuciones](#contribuciones)
 - [Licencia](#licencia)
 
-## Configuración ⚙️
+## Descripción 📝
 
-Configuración de variables de entorno en el archivo `.env` en la raiz del proyecto.
+Este proyecto implementa pruebas automatizadas para validar los diferentes flujos de autenticación OAuth2 de la API de SignNow:
 
-```bash
-CLIENT_ID=...
-CLIENT_SECRET=...
-```
+- Password Grant Flow
+- Authorization Code Flow
+- Verificación de tokens
+- Refresh de tokens
 
-## Instalación 💻
-make install
+Las pruebas validan la correcta implementación del protocolo OAuth2 y la gestión de tokens por parte de la API de SignNow.
 
-## Requisitos 📋
+## Tecnologías 💻
+
 - Java 17+
 - Gradle
-- IntelliJ
-- Variables de entorno: `CLIENT_ID`, `CLIENT_SECRET`
+- TestNG como framework de testing
+- Rest Assured para pruebas de API REST
+- Extent Reports para generación de reportes
+- Jsoup para parsing de HTML
+- Dotenv para gestión de variables de entorno
+
+## Estructura del Proyecto 🏗️
+
+```
+signnow-api-tests/ 
+├── build.gradle
+├── gradle.properties
+├── gradlew
+├── gradlew.bat
+├── src/
+│   ├── test/
+│   │   ├── java/
+│   │   │   ├── com/
+│   │   │   │   ├── signnow/
+│   │   │   │   │   ├── base/ # Clases base para pruebas
+│   │   │   │   │   ├── config/ # Configuración y variables de entorno
+│   │   │   │   │   ├── services/ # Servicios para pruebas
+│   │   │   │   │   ├── tests/ # Pruebas
+│   │   │   │   │   ├── utils/ # Utilidades
+│   │   │   ├── resources/
+├── .env # Variables de entorno (no incluido en git) 
+├── .gitignore 
+├── build.gradle 
+├── Makefile # Comandos automatizados 
+└── README.md
+
+
+```
+
+## Requisitos 📋
+
+- Java 17 o superior
+- Gradle 7+ (o usar Gradle Wrapper incluido)
+- IntelliJ IDEA (recomendado)
+- Cuenta de desarrollador en SignNow
+
+## Configuración ⚙️
+
+1. Crea un archivo `.env` en la raíz del proyecto con las siguientes variables:
+
+```bash
+CLIENT_ID=tu_client_id 
+CLIENT_SECRET=tu_client_secret 
+BASIC_AUTH_TOKEN=base64_de_client_id:client_secret 
+USERNAME=tu_username 
+PASSWORD=tu_password
+
+```
+
+
+> 💡 **Nota**: Para obtener el BASIC_AUTH_TOKEN, codifica en Base64 la cadena "CLIENT_ID:CLIENT_SECRET".
+
+## Instalación 💻
+ 
+```bash
+# Clonar el repositorio
+git clone [https://github.com/tu-usuario/signnow-api-tests.git](https://github.com/tu-usuario/signnow-api-tests.git) cd signnow-api-tests
+# Instalar dependencias
+make install
+
+```
+El comando `make install` ejecuta:
+- Configuración de Gradle
+- Descarga de dependencias
+- Verificación de variables de entorno
+
 
 ## Ejecutar pruebas 🏃‍♂️
+
+### Ejecutar todas las pruebas
+
 
 ```bash
 make run-tests
 ```
-Para ejecutar pruebas específicas, puedes usar el siguiente comando: make run-tests <nombre_de_la_prueba>.
+### Ejecutar una prueba específica
+
+```bash
+
+bash make run-tests TEST=OAuth2UserAuthTest
+
+```
+
+### Ejecutar un método de prueba específico
+
+```bash
+
+make run-test-method TEST=OAuth2TokenWithAuthCodeTest METHOD=testAuthCodeViaRedirect
+
+```
 
 
 ## Ver reporte 📊
@@ -43,18 +139,56 @@ Para ejecutar pruebas específicas, puedes usar el siguiente comando: make run-t
 ```bash
 make report
 ```
-Los reportes se generarán en el directorio reports. Puedes abrir el archivo report.html para ver los resultados.
+Este comando abrirá automáticamente el informe HTML generado en tu navegador predeterminado.
 
+![Ejemplo de Reporte](src/test/resources/VistaPreviaReporte.png)
+
+## Flujos OAuth2 Probados 🔐
+
+### 1. Password Grant Flow
+
+```java
+// Ejemplo simplificado 
+Response response = AuthService.getPasswordGrantToken( EnvConfig.getUsername(), EnvConfig.getPassword(), EnvConfig.getBasicAuthToken);
+``` 
+
+
+### 2. Authorization Code Flow
+
+```java
+// 1. Obtención del código de autorización 
+Response response = AuthService.requestAuthorizationCode( clientId, accessToken, redirectUri );
+// 2. Intercambio del código por tokens 
+String authCode = AuthService.extractAuthCodeFromResponse(response, redirectUri); Response tokenResponse = AuthService.getTokenWithAuthCode(authCode, basicAuthToken);
+
+```
 
 ## CI/CD 🔄
 
-GitHub Actions ejecuta las pruebas automáticamente en cada push o PR. Esto ayuda a mantener la calidad del código al asegurarse de que todas las pruebas pasen antes de fusionar cambios.
+Este proyecto utiliza GitHub Actions para automatizar las pruebas en cada push y pull request. El flujo de trabajo incluye:
 
-## Contribuciones  🤝
-Si deseas contribuir, por favor abre un issue o envía un pull request. Asegúrate de seguir nuestras pautas de contribución.
+- Compilación y verificación del código
+- Ejecución de todas las pruebas
+- Generación y publicación de reportes
+
+Puedes ver los workflows en el directorio `.github/workflows/`.
+
+## Contribuciones 🤝
+
+Las contribuciones son bienvenidas. Por favor, sigue estos pasos:
+
+1. Haz fork del repositorio
+2. Crea una rama (`git checkout -b feature/amazing-feature`)
+3. Haz commit de tus cambios (`git commit -m 'Add amazing feature'`)
+4. Push desde la rama (`git push origin feature/amazing-feature`)
+5. Abre un Pull Request
+
+Asegúrate de que todas las pruebas pasen y de seguir el estilo de código establecido.
 
 ## Licencia 📄
-Este proyecto está bajo la Licencia MIT. Consulta el archivo LICENSE para más detalles.
+
+Este proyecto está bajo la Licencia MIT. Consulta el archivo [LICENSE](LICENSE) para más detalles.
+
 
 
 

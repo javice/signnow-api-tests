@@ -1,16 +1,17 @@
 package com.signnow.tests;
 
+import com.signnow.services.AuthService;
 import com.signnow.utils.ReportListener;
 import com.signnow.base.TestBase;
 import com.signnow.config.EnvConfig;
 import com.aventstack.extentreports.ExtentTest;
 import io.restassured.RestAssured;
 import io.restassured.response.Response;
-import org.junit.jupiter.api.BeforeEach;
+//import org.junit.jupiter.api.BeforeEach;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import jdk.jfr.Description;
-import org.junit.jupiter.api.DisplayName;
+//import org.junit.jupiter.api.DisplayName;
 import org.testng.annotations.Test;
 
 
@@ -24,13 +25,20 @@ public class OAuth2UserAuthTest  extends TestBase {
 
 
     @Test(description = "POST: Generar Access Token (Password Grant)")
-    @Description("Test para generar el token de acesso usando  grant_type password")
-    @DisplayName("POST: Generar Access Token")
+    //@Description("Test para generar el token de acesso usando  grant_type password")
+    //@DisplayName("POST: Generar Access Token")
     public void testPasswordGrantToken() {
         ExtentTest extentTest = ReportListener.test.get();
         extentTest.info("ℹ️ Iniciando Test: Generar Access Token con Password Grant");
 
-        Response response = given()
+        Response response = AuthService.getPasswordGrantToken(
+                EnvConfig.getUsername(),
+                EnvConfig.getPassword(),
+                EnvConfig.getBasicAuthToken()
+        );
+
+
+        /*Response response = given()
                 .log().ifValidationFails()
                 .header("Authorization", "Basic " + EnvConfig.getBasicAuthToken())
                 .contentType("application/x-www-form-urlencoded")
@@ -42,7 +50,7 @@ public class OAuth2UserAuthTest  extends TestBase {
                 .post("/oauth2/token")
                 .then()
                 .log().ifValidationFails()
-                .extract().response();
+                .extract().response();*/
 
         assertThat(response.statusCode(), is(200));
         assertThat(response.jsonPath().getString("access_token"), is(notNullValue()));
@@ -50,12 +58,19 @@ public class OAuth2UserAuthTest  extends TestBase {
         assertThat(response.jsonPath().getString("token_type"), is(equalToIgnoringCase("bearer")));
         assertThat(response.jsonPath().getString("scope"), is(equalTo("*")));
 
-
+        // Actualizar tokens
         String accessToken = response.jsonPath().getString("access_token");
+        String refreshToken = response.jsonPath().getString("refresh_token");
+        EnvConfig.updateAccessToken(accessToken);
+        EnvConfig.updateRefreshToken(refreshToken);
+
+
+
+        /*String accessToken = response.jsonPath().getString("access_token");
         String refreshToken = response.jsonPath().getString("refresh_token");
 
         EnvConfig.updateAccessToken(accessToken);
-        EnvConfig.updateRefreshToken(refreshToken);
+        EnvConfig.updateRefreshToken(refreshToken);*/
 
 
         // Agregamos el valor de Env.getAccessToken al reporte del test
@@ -67,22 +82,23 @@ public class OAuth2UserAuthTest  extends TestBase {
     @Test(description = "GET: Verificar Access Token obtenido con Password Grant",
             dependsOnMethods = {"testPasswordGrantToken"})
     @Description ("Test para verificar el token de acesso creado por el grant_type password anteriormente")
-    @DisplayName("GET: Verificar Access Token")
+    //@DisplayName("GET: Verificar Access Token")
     public void testAccessToken() {
         ExtentTest extentTest = ReportListener.test.get();
         String currentAccessToken = EnvConfig.getAccessToken();
         Assert.assertNotNull(currentAccessToken, "Access Token no debe ser null para este test");
 
         extentTest.info("ℹ️ Iniciando Test: Verificar Access Token");
+        Response response = AuthService.verifyAccessToken(currentAccessToken);
 
-        Response response = given()
+        /*Response response = given()
                 .log().ifValidationFails()
                 .header("Authorization", "Bearer " + currentAccessToken)
                 .when()
                 .get("/oauth2/token")
                 .then()
                 .log().ifValidationFails()
-                .extract().response();
+                .extract().response();*/
 
         assertThat(response.statusCode(), is(200));
         assertThat(response.jsonPath().getString("access_token"), is(equalTo(currentAccessToken)));
