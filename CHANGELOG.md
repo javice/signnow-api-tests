@@ -1,6 +1,11 @@
 # Changelog
 
-## [1.1.0] - 2025-04-12
+## [1.1.0] - 2025-04-17
+### Changed
+- Revisión general del código.
+- Nos aseguramos que las anotaciones de los tests son todas TestNG y eliminamos las anteriores de JUnit
+
+## [1.1.0] - 2025-04-17
 ### Added
 - Integración con JaCoCo para análisis de cobertura de código
 - Integración con Codecov para visualización de informes de cobertura
