@@ -1,6 +1,10 @@
 # Changelog
 
-## [1.1.0] - 2025-04-17
+## [1.1.2] - 2025-04-17
+### Changed
+- Ajuste Secrets en GitHub Actions.
+
+## [1.1.1] - 2025-04-17
 ### Changed
 - Revisión general del código.
 - Nos aseguramos que las anotaciones de los tests son todas TestNG y eliminamos las anteriores de JUnit
