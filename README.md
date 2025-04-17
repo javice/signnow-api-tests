@@ -9,6 +9,7 @@
 [![codecov](https://codecov.io/gh/javice/signnow-api-tests/graph/badge.svg?token=Y7KNYY8QWW)](https://codecov.io/gh/javice/signnow-api-tests)
 
 Tests API automatizados para validar los flujos de autenticación OAuth2 de SignNow utilizando `Rest Assured` y `TestNG`.
+Este proyecto pertenece al desafío técnico de Abril 2025 de Free Range Testers.
 
 ## Tabla de Contenidos 📚
 - [Descripción](#descripción)
