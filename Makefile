@@ -1,10 +1,11 @@
+
 # Variables para colores
 GREEN := \033[0;32m
 RED := \033[0;31m
 YELLOW := \033[0;33m
 NC := \033[0m # No Color
 
-.PHONY: run-tests report clean install build run coverage coverage-report
+.PHONY: run-tests report clean install build run coverage coverage-report verify-env debug-env
 
 run-tests:
 	@echo "$(YELLOW)Ejecutando tests...$(NC)"

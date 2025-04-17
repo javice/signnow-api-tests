@@ -80,6 +80,32 @@ signnow-api-tests/
 - IntelliJ IDEA (recomendado)
 - Cuenta de desarrollador en SignNow
 
+## Variables de Entorno ⚠️
+
+Este proyecto requiere la configuración de variables de entorno para funcionar correctamente. **Es obligatorio** crear un archivo `.env` en la raíz del proyecto antes de ejecutar las pruebas.
+
+### Variables Requeridas
+
+| Variable | Descripción | Ejemplo |
+|----------|-------------|---------|
+| `CLIENT_ID` | ID de cliente proporcionado por SignNow | `abc123def456` |
+| `CLIENT_SECRET` | Secreto de cliente proporcionado por SignNow | `secret789xyz` |
+| `BASIC_AUTH_TOKEN` | Token en Base64 de `CLIENT_ID:CLIENT_SECRET` | `YWJjMTIzZGVmNDU2OnNlY3JldDc4OXh5eg==` |
+| `USERNAME` | Nombre de usuario de SignNow | `usuario@ejemplo.com` |
+| `PASSWORD` | Contraseña de SignNow | `contraseña123` |
+
+### Cómo obtener estas variables
+
+1. Regístrate como desarrollador en [SignNow Developer Portal](https://developer.signnow.com)
+2. Crea una nueva aplicación para obtener tu `CLIENT_ID` y `CLIENT_SECRET`
+3. Genera el `BASIC_AUTH_TOKEN` utilizando el siguiente comando:
+   ```bash
+   echo -n "TU_CLIENT_ID:TU_CLIENT_SECRET" | base64
+   ```
+4. Usa tu nombre de usuario y contraseña de SignNow para `USERNAME` y `PASSWORD`
+
+⚠️ **IMPORTANTE**: El archivo `.env` está incluido en `.gitignore` y no debe subirse al repositorio por razones de seguridad. Cada desarrollador debe crear su propio archivo `.env` local.
+
 ## Configuración ⚙️
 
 1. Crea un archivo `.env` en la raíz del proyecto con las siguientes variables:
@@ -90,7 +116,6 @@ CLIENT_SECRET=tu_client_secret
 BASIC_AUTH_TOKEN=base64_de_client_id:client_secret 
 USERNAME=tu_username 
 PASSWORD=tu_password
-
 ```
 
 
@@ -207,6 +232,15 @@ Este proyecto utiliza GitHub Actions para automatizar las pruebas en cada push y
 
 
 Puedes ver los workflows en el directorio `.github/workflows/`.
+
+## Solución de Problemas 🔧
+### Problemas con las Variables de Entorno
+Si encuentras errores relacionados con variables de entorno, verifica lo siguiente:
+1. **El archivo existe`.env`**: Asegúrate de haber creado el archivo en la raíz del proyecto.
+2. **Formato correcto**: No incluyas espacios alrededor del signo `=` en las asignaciones.
+3. **Valores válidos**: Verifica que los valores proporcionados son correctos (especialmente el BASIC_AUTH_TOKEN).
+4. **Permisos adecuados**: La aplicación debe tener los permisos necesarios configurados en SignNow.
+
 
 ## Contribuciones 🤝
 
