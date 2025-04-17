@@ -4,11 +4,21 @@ RED := \033[0;31m
 YELLOW := \033[0;33m
 NC := \033[0m # No Color
 
-.PHONY: run-tests report clean install build run
+.PHONY: run-tests report clean install build run coverage coverage-report
 
 run-tests:
 	@echo "$(YELLOW)Ejecutando tests...$(NC)"
 	@./gradlew clean test && echo "$(GREEN)Tests completados satisfactoriamente!$(NC)" || echo "$(RED)Tests fallidos!! Por favor revisa la salida del log.$(NC)"
+
+# Añadido nuevo comando para ejecutar tests con cobertura
+coverage:
+	@echo "$(YELLOW)Ejecutando tests con análisis de cobertura...$(NC)"
+	@./gradlew clean test jacocoTestReport && echo "$(GREEN)Tests con cobertura completados satisfactoriamente!$(NC)" || echo "$(RED)Generación de cobertura fallida!! Por favor revisa la salida del log.$(NC)"
+
+# Añadido comando para abrir el informe de cobertura HTML
+coverage-report:
+	@echo "$(YELLOW)Abriendo reporte de cobertura...$(NC)"
+	@open build/reports/jacoco/test/html/index.html && echo "$(GREEN)Reporte de cobertura abierto correctamente!$(NC)" || echo "$(RED)No se pudo abrir el reporte de cobertura.$(NC)"
 
 report:
 	@echo "$(YELLOW)Abriendo reporte...$(NC)"
@@ -29,4 +39,3 @@ build:
 run:
 	@echo "$(YELLOW)Ejecutando...$(NC)"
 	@./gradlew run && echo "$(GREEN)Ejecutado correctamente!$(NC)"
-
