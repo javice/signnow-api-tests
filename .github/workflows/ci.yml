@@ -17,6 +17,8 @@ jobs:
           distribution: 'temurin'
       - name: Run Tests
         run: make run-tests
+      - name: Run Tests with Coverage
+        run: make coverage
       - name: Check if report exists
         run: |
           if [ -f report.html ]; then
@@ -32,3 +34,14 @@ jobs:
         with:
           name: test-report
           path: report.html
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v5
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          slug: javice/signnow-api-tests
+          file: ./build/reports/jacoco/test/jacocoTestReport.xml
+          flags: unittests
+          name: codecov-umbrella
+          fail_ci_if_error: true
+
+

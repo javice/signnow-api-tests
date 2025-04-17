@@ -1,5 +1,7 @@
 plugins {
     id 'java'
+    id 'jacoco'
+
 }
 
 group 'com.signnow'
@@ -20,10 +22,39 @@ dependencies {
     
 }
 
+jacoco {
+    toolVersion = "0.8.10"  // Versión de JaCoCo
+}
+
+jacocoTestReport {
+    reports {
+        xml.required = true  // Genera informe XML para Codecov
+        html.required = true  // Informe HTML para visualización local
+    }
+    // Importante: Configura para analizar las clases de test
+    executionData(files("${buildDir}/jacoco/test.exec"))
+
+    // Añade aquí las clases de test en la configuración de JaCoCo
+    sourceSets sourceSets.test
+
+
+    // Opcional: Excluir clases que no necesitan pruebas
+    afterEvaluate {
+        classDirectories.setFrom(files(classDirectories.files.collect {
+            fileTree(dir: it, exclude: [
+                    'com/signnow/config/**',
+                    'com/signnow/model/**'
+            ])
+        }))
+    }
+}
+
 
 
 test {
     useTestNG() {
         suites 'src/test/resources/testng.xml'
     }
+    finalizedBy jacocoTestReport
+
 }

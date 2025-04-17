@@ -6,6 +6,8 @@
 
 ![TestNG](https://img.shields.io/badge/TestNG-Framework-green)
 
+[![codecov](https://codecov.io/gh/javice/signnow-api-tests/graph/badge.svg?token=Y7KNYY8QWW)](https://codecov.io/gh/javice/signnow-api-tests)
+
 Tests API automatizados para validar los flujos de autenticación OAuth2 de SignNow utilizando `Rest Assured` y `TestNG`.
 
 ## Tabla de Contenidos 📚
@@ -143,6 +145,36 @@ Este comando abrirá automáticamente el informe HTML generado en tu navegador p
 
 ![Ejemplo de Reporte](src/test/resources/VistaPreviaReporte.png)
 
+## Análisis de Cobertura 📈
+
+El proyecto utiliza JaCoCo para el análisis de cobertura de código y Codecov para la visualización de los informes de cobertura en la nube.
+
+### Generar informe de cobertura local
+
+```bash
+make coverage
+```
+Este comando ejecuta las pruebas con JaCoCo y genera informes de cobertura en formato XML (para Codecov) y HTML (para visualización local).
+
+### Ver informe de cobertura local
+
+```bash 
+make coverage-report
+```
+Este comando abrirá el informe HTML de cobertura en tu navegador predeterminado, mostrando detalles sobre la cobertura de código por paquete, clase y método.
+
+### Informes de cobertura en Codecov
+
+Los informes de cobertura se envían automáticamente a Codecov cuando se ejecuta el flujo de trabajo de GitHub Actions. Puedes ver los informes detallados en [Codecov](https://codecov.io/gh/javice/signnow-api-tests).
+
+### Configuración de JaCoCo
+
+JaCoCo está configurado en el archivo `build.gradle` para:
+- Excluir paquetes que no necesitan cobertura (configuración, modelos)
+- Generar informes XML para integración con Codecov
+- Generar informes HTML para visualización local
+- Analizar adecuadamente las clases de prueba
+
 ## Flujos OAuth2 Probados 🔐
 
 ### 1. Password Grant Flow
@@ -169,7 +201,10 @@ Este proyecto utiliza GitHub Actions para automatizar las pruebas en cada push y
 
 - Compilación y verificación del código
 - Ejecución de todas las pruebas
-- Generación y publicación de reportes
+- Generación de informes de cobertura
+- Envío de informes a Codecov
+- Generación y publicación de reportes de pruebas
+
 
 Puedes ver los workflows en el directorio `.github/workflows/`.
 
