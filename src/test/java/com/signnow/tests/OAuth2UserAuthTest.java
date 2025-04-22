@@ -45,8 +45,8 @@ public class OAuth2UserAuthTest  extends TestBase {
         EnvConfig.updateRefreshToken(refreshToken);
 
         // Agregamos el valor de Env.getAccessToken al reporte del test
-        extentTest.info("Access Token Generado: " + EnvConfig.getAccessToken());
-        extentTest.info("Refresh Token Generado: " + EnvConfig.getRefreshToken());
+        extentTest.info("Access Token Generado: " + EnvConfig.getMaskedAccessToken());
+        extentTest.info("Refresh Token Generado: " + EnvConfig.getMaskedRefreshToken());
 
     }
 
@@ -64,7 +64,7 @@ public class OAuth2UserAuthTest  extends TestBase {
         assertThat(response.jsonPath().getString("access_token"), is(equalTo(currentAccessToken)));
 
         // Agregamos el valor de Env.getAccessToken al reporte del test
-        extentTest.info("Access Token: " + EnvConfig.getAccessToken());
+        extentTest.info("Access Token: " + EnvConfig.getMaskedAccessToken());
         extentTest.info("Verificación de Access Token completada con éxito.");
 
     }
