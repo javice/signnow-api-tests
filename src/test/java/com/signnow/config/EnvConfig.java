@@ -1,5 +1,6 @@
 package com.signnow.config;
 
+import com.signnow.utils.MaskingUtils;
 import io.github.cdimascio.dotenv.Dotenv;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -93,6 +94,31 @@ public class EnvConfig {
         currentAuthorizationCode = authorizationCode;
         // NO escribe en el archivo .env
     }
+
+    /**
+     * Obtiene una versión enmascarada del access token para mostrar en reportes
+     * @return Access token enmascarado (ej: "abc***")
+     */
+    public static String getMaskedAccessToken() {
+        return MaskingUtils.maskSensitiveValue(currentAccessToken);
+    }
+
+    /**
+     * Obtiene una versión enmascarada del refresh token para mostrar en reportes
+     * @return Refresh token enmascarado (ej: "abc***")
+     */
+    public static String getMaskedRefreshToken() {
+        return MaskingUtils.maskSensitiveValue(currentRefreshToken);
+    }
+
+    public static String getMaskedClientSecret() {
+        return MaskingUtils.maskSensitiveValue(clientSecret);
+    }
+
+    public static String getMaskedAuthorizationCode() {
+        return MaskingUtils.maskSensitiveValue(currentAuthorizationCode);
+    }
+
 }
 
 

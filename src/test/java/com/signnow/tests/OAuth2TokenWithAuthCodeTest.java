@@ -3,6 +3,7 @@ package com.signnow.tests;
 import com.aventstack.extentreports.ExtentTest;
 import com.signnow.config.EnvConfig;
 import com.signnow.utils.ReportListener;
+import com.signnow.utils.MaskingUtils;
 import io.restassured.http.ContentType;
 import io.restassured.response.Response;
 import org.testng.Assert;
@@ -80,8 +81,8 @@ public class OAuth2TokenWithAuthCodeTest {
         EnvConfig.updateRefreshToken(refreshToken);
 
         // Agregamos Los valores de ACCESS_TOKEN y REFRESH_TOKEN al reporte del test
-        extentTest.info("Access Token: " + EnvConfig.getAccessToken());
-        extentTest.info("Refresh Token: " + EnvConfig.getRefreshToken());
+        extentTest.info("Access Token: " + EnvConfig.getMaskedAccessToken());
+        extentTest.info("Refresh Token: " + EnvConfig.getMaskedRefreshToken());
         extentTest.info("✅ Tokens 'Access' y 'Refresh' generados y almacenados con éxito.");
     }
 
@@ -112,7 +113,7 @@ public class OAuth2TokenWithAuthCodeTest {
 
         // Agregamos los valores de CLIENT_ID  y CLIENT_SECRET al reporte del test
         extentTest.info("Client ID Verificado : " + EnvConfig.getClientId());
-        extentTest.info("Client Secret Verificado: " + EnvConfig.getClientSecret());
+        extentTest.info("Client Secret Verificado: " + EnvConfig.getMaskedClientSecret());
         extentTest.info("✅ Client ID y Secret verificados con éxito.");
 
     }
@@ -148,7 +149,7 @@ public class OAuth2TokenWithAuthCodeTest {
         EnvConfig.updateAuthorizationCode(authorizationCode);
 
         // Información para el reporte
-        extentTest.info("Authorization Code extraído: " + EnvConfig.getAuthorizationCode());
+        extentTest.info("Authorization Code extraído: " + EnvConfig.getMaskedAuthorizationCode());
         extentTest.info("✅ Código de autorización obtenido y almacenado con éxito desde HTML.");
     }
 
@@ -183,16 +184,16 @@ public class OAuth2TokenWithAuthCodeTest {
         String content = metaRefresh.attr("content");
         assertThat("El atributo 'content' está vacío o no existe en la etiqueta meta refresh.",
                 content, is(notNullValue()));
-        extentTest.info("Atributo 'content' encontrado: " + content);
+        extentTest.info("Atributo 'content' encontrado: " + MaskingUtils.maskSensitiveValue(content));
 
         // Extraer URL del contenido
         String urlString = extractUrlFromContent(content);
-        assertThat("No se pudo extraer la URL del atributo 'content': " + content,
+        assertThat("No se pudo extraer la URL del atributo 'content': " + MaskingUtils.maskSensitiveValue(content),
                 urlString, is(notNullValue()));
-        extentTest.info("URL extraída del meta tag: " + urlString);
+        extentTest.info("URL extraída del meta tag: " + MaskingUtils.maskSensitiveValue(MaskingUtils.maskSensitiveValue(urlString)));
 
         // Validar que la URL comienza con el prefijo esperado
-        assertThat("La URL extraída (" + urlString + ") no comienza con el prefijo esperado (" +
+        assertThat("La URL extraída (" + MaskingUtils.maskSensitiveValue(urlString) + ") no comienza con el prefijo esperado (" +
                 expectedRedirectUriPrefix + ")", urlString, startsWith(expectedRedirectUriPrefix));
 
         // Extraer el código de autorización de la URL
@@ -256,10 +257,8 @@ public class OAuth2TokenWithAuthCodeTest {
         assertThat("El código de autorización es null. El test 'testAuthCodeViaRedirect' pudo haber fallado.", authCode, is(notNullValue()));
         assertThat("El código de autorización parece inválido o no se actualizó: " + authCode, authCode, is(not(emptyString())));
 
-        extentTest.info("Usando Authorization Code: " + authCode);
-
         // Añadimos el Authorization Code obtenido anteriormente al reporte
-        extentTest.info("Authorization Code Previo: " + authCode);
+        extentTest.info("Authorization Code Previo: " + EnvConfig.getMaskedAuthorizationCode());
 
         Response response = given()
                 .log().ifValidationFails()
@@ -287,8 +286,8 @@ public class OAuth2TokenWithAuthCodeTest {
         EnvConfig.updateRefreshToken(refreshToken);
 
         // Agregamos los valores de ACCESS_TOKEN y REFRESH_TOKEN al reporte del test
-        extentTest.info("Access Token: " + EnvConfig.getAccessToken());
-        extentTest.info("Refresh Token: " + EnvConfig.getRefreshToken());
+        extentTest.info("Access Token: " + EnvConfig.getMaskedAccessToken());
+        extentTest.info("Refresh Token: " + EnvConfig.getMaskedRefreshToken());
         extentTest.info("✅ Nuevos tokens obtenidos con éxito usando Authorization Code.");
     }
 
